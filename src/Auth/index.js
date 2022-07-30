@@ -30,9 +30,10 @@ export const CheckAuth = ({ children }) => {
 
   if (!user && !check) {
     return <LoadingScreen />;
-  } else if (!user && check) {
-    navigate("/login");
   }
+  // if (!user && check) {
+  //   navigate("/login");
+  // }
 
   return children;
 };

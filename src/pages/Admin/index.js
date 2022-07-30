@@ -1,8 +1,16 @@
 import { Button, Modal, Table } from "antd";
+import { useForm } from "antd/lib/form/Form";
 import React from "react";
+import FormAdmin from "./components/FormAdmin";
 
 const Admin = () => {
   const [isModal, setIsModal] = React.useState(false);
+  const [form] = useForm();
+
+  const handleCreateAdmin = () => {
+    console.log(form.getFieldsValue());
+    setIsModal(false);
+  };
 
   const columns = [
     {
@@ -44,13 +52,13 @@ const Admin = () => {
       <Modal
         title={"Create Admin"}
         visible={isModal}
-        onOk={() => setIsModal(false)}
+        onOk={handleCreateAdmin}
         onCancel={() => setIsModal(false)}
         okText={
           <span className="text-blue-500 hover:text-white">{"Create"}</span>
         }
       >
-        ok
+        <FormAdmin form={form} />
       </Modal>
     </div>
   );

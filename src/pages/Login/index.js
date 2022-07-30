@@ -27,10 +27,10 @@ const Login = () => {
         </div>
         <Form form={form} onFinish={handleLogin} className="w-[500px]">
           <Form.Item
-            name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            name="email"
+            rules={[{ required: true, message: "Please input your email!" }]}
           >
-            <Input placeholder="Username" />
+            <Input placeholder="Email" />
           </Form.Item>
           <Form.Item
             name="password"
