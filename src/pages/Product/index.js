@@ -1,12 +1,20 @@
 import { Button, Modal, Table } from "antd";
+import { useForm } from "antd/es/form/Form";
 import React from "react";
+import FormProduct from "./components/FormProduct";
 
 const Product = () => {
+  const [form] = useForm();
   const [isModal, setIsModal] = React.useState(false);
   const [editItem, setEditItem] = React.useState(null);
 
   const handelCloseModal = () => {
     setEditItem(null);
+    setIsModal(false);
+  };
+
+  const handleCreateProduct = () => {
+    console.log(form.getFieldsValue());
     setIsModal(false);
   };
 
@@ -91,7 +99,7 @@ const Product = () => {
       <Modal
         title={editItem ? "Edit Product" : "Create Product"}
         visible={isModal}
-        onOk={handelCloseModal}
+        onOk={handleCreateProduct}
         onCancel={handelCloseModal}
         okText={
           <span className="text-blue-500 hover:text-white">
@@ -99,7 +107,7 @@ const Product = () => {
           </span>
         }
       >
-        ok
+        <FormProduct form={form} />
       </Modal>
     </div>
   );
