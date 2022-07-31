@@ -19,14 +19,7 @@ const FormProduct = ({ form }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-  const [fileList, setFileList] = useState([
-    {
-      uid: "-1",
-      name: "image.png",
-      status: "done",
-      url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    },
-  ]);
+  const [fileList, setFileList] = useState([]);
 
   const handleCancel = () => setPreviewVisible(false);
 
@@ -105,7 +98,7 @@ const FormProduct = ({ form }) => {
             onPreview={handlePreview}
             onChange={handleChange}
           >
-            {fileList.length >= 5 ? null : (
+            {fileList.length >= 1 ? null : (
               <div>
                 <PlusOutlined />
                 <div

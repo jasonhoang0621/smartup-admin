@@ -7,3 +7,7 @@
   margin: 0;
   box-sizing: border-box;
 }
+
+.ant-table .ant-table-content .ant-table-thead > tr > .ant-table-cell {
+  text-align: center;
+}
