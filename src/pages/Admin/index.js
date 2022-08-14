@@ -46,6 +46,7 @@ const Admin = () => {
       return;
     }
     setData([...data, res.data]);
+    form.resetFields();
     setIsLoading(false);
     setIsModal(false);
   };

@@ -1,7 +1,8 @@
-import { Button, Modal, Spin, Table } from "antd";
+import { Button, Modal, notification, Spin, Table } from "antd";
 import { useForm } from "antd/es/form/Form";
 import axios from "axios";
-import React from "react";
+import React, { useEffect } from "react";
+import productAPI from "src/api/product";
 import FormProduct from "./components/FormProduct";
 
 const Product = () => {
@@ -52,10 +53,10 @@ const Product = () => {
   const columns = [
     {
       title: "",
-      dataIndex: "thumbnail",
-      key: "thumbnail",
+      dataIndex: "image",
+      key: "image",
       render: (text, record) => (
-        <img src={record.thumbnail} alt="thumbnail" width="100" />
+        <img src={record.image[0]} alt="thumbnail" width="100" height="100" />
       ),
     },
     {
@@ -109,24 +110,26 @@ const Product = () => {
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      thumbnail: "https://via.placeholder.com/150",
-      name: "John Brown",
-      stock: "John Brown",
-      price: "John Brown",
-      sale: "John Brown",
-    },
-    {
-      key: "2",
-      thumbnail: "https://via.placeholder.com/150",
-      name: "John Brown",
-      stock: "John Brown",
-      price: "John Brown",
-      sale: "John Brown",
-    },
-  ];
+  const [data, setData] = React.useState([]);
+
+  useEffect(() => {
+    const getProductData = async () => {
+      setIsLoading(true);
+      const res = await productAPI.getListProduct();
+      console.log(res.data);
+      if (res.errorCode) {
+        notification.error({
+          message: "Error",
+          description: res.message,
+        });
+        setIsLoading(false);
+        return;
+      }
+      setData(res.data);
+      setIsLoading(false);
+    };
+    getProductData();
+  }, []);
 
   return (
     <Spin spinning={isLoading}>
@@ -138,7 +141,7 @@ const Product = () => {
         >
           Create
         </Button>
-        <Table columns={columns} dataSource={data} />
+        <Table columns={columns} dataSource={data} rowKey="id" />
         <Modal
           title={editItem ? "Edit Product" : "Create Product"}
           visible={isModal}

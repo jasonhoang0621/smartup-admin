@@ -6,20 +6,25 @@ import {
   Input,
   InputNumber,
   Modal,
+  notification,
   Select,
   Space,
   Tag,
   Upload,
 } from "antd";
 import TextArea from "antd/lib/input/TextArea";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import supplierAPI from "src/api/supplier";
 import { getBase64 } from "src/helpers/image";
+import FormSupplier from "./FormSupplier";
 
 const FormProduct = ({ form }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileList, setFileList] = useState([]);
+  const [supplierList, setSupplierList] = useState([]);
+  const [isSupplierModal, setIsSupplierModal] = useState(false);
 
   const handleCancel = () => setPreviewVisible(false);
 
@@ -59,6 +64,22 @@ const FormProduct = ({ form }) => {
     setColorTag("");
   };
 
+  useEffect(() => {
+    const getSupplierData = async () => {
+      const res = await supplierAPI.getListSupplier();
+      console.log(res);
+      if (res.errorCode) {
+        notification.error({
+          message: res.data.message || "Cannot get supplier data",
+          duration: 1,
+        });
+        return;
+      }
+      setSupplierList(res.data);
+    };
+    getSupplierData();
+  }, []);
+
   const tagRender = (props) => {
     const { label, value, closable, onClose } = props;
     const onPreventMouseDown = (event) => {
@@ -73,11 +94,13 @@ const FormProduct = ({ form }) => {
         onClose={onClose}
         style={{
           marginRight: 3,
-          color: "black",
-          borderColor: "grey",
+          color: label === "black" ? "#fff" : "#000",
+          borderColor: "#cdcdcd",
+          display: "inline-flex",
+          alignItems: "center",
         }}
       >
-        {label}
+        <span>{label}</span>
       </Tag>
     );
   };
@@ -159,14 +182,57 @@ const FormProduct = ({ form }) => {
           />
         </Form.Item>
         <Form.Item
+          label="Dimension"
+          name={"dimension"}
+          rules={[
+            { required: true, message: "Please input product dimension!" },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <div className="flex items-center mb-5">
+          <Form.Item
+            label="Brand"
+            name="supplier"
+            rules={[
+              { required: true, message: "Please choose product brand!" },
+            ]}
+            className="w-full mb-0"
+          >
+            <Select placeholder="Choose Brand">
+              {supplierList.map((item) => (
+                <Select.Option key={item.id} value={item.id}>
+                  {item.companyName}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Button
+            type="primary"
+            className="text-blue-500 ml-5"
+            onClick={() => setIsSupplierModal(true)}
+          >
+            Add Brand
+          </Button>
+        </div>
+        <Form.Item
+          label="Warranty"
+          name="warranty"
+          rules={[
+            { required: true, message: "Please input product warranty!" },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
           label="Price"
           name="price"
           rules={[{ required: true, message: "Please input product price!" }]}
         >
-          <InputNumber />
+          <Input prefix="$" />
         </Form.Item>
         <Form.Item label="Sale" name="sale">
-          <InputNumber />
+          <Input suffix="%" type={"number"} />
         </Form.Item>
         <Form.Item
           label="Quantity"
@@ -191,6 +257,15 @@ const FormProduct = ({ form }) => {
           }}
           src={previewImage}
         />
+      </Modal>
+      <Modal
+        visible={isSupplierModal}
+        title="Add Brand"
+        onOk={() => {}}
+        onCancel={() => setIsSupplierModal(false)}
+        footer={null}
+      >
+        <FormSupplier />
       </Modal>
     </>
   );
