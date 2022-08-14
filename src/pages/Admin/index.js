@@ -1,16 +1,15 @@
-import { Button, Modal, Table } from "antd";
+import { Button, Modal, notification, Spin, Table } from "antd";
 import { useForm } from "antd/lib/form/Form";
-import React from "react";
+import React, { useEffect } from "react";
+import userAPI from "src/api/user";
 import FormAdmin from "./components/FormAdmin";
 
 const Admin = () => {
   const [isModal, setIsModal] = React.useState(false);
   const [form] = useForm();
-
-  const handleCreateAdmin = () => {
-    console.log(form.getFieldsValue());
-    setIsModal(false);
-  };
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [data, setData] = React.useState([]);
+  console.log(isLoading);
 
   const columns = [
     {
@@ -25,21 +24,45 @@ const Admin = () => {
     },
   ];
 
-  const [data, setData] = React.useState([
-    {
-      key: "1",
-      name: "John Brown",
-      email: "john@abc.com",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      email: "jim@gmail.com",
-    },
-  ]);
+  const handleCreateAdmin = async () => {
+    setIsLoading(true);
+    const dataForm = form.getFieldsValue();
+    if (dataForm.password !== dataForm.confirmPassword) {
+      notification.error({
+        message: "Password not match",
+        duration: 1,
+      });
+      setIsLoading(false);
+      return;
+    }
+    dataForm.role = "admin";
+    const res = await userAPI.register(dataForm);
+    if (res.errorCode) {
+      notification.error({
+        message: res.message || "Something went wrong",
+        duration: 1,
+      });
+      setIsLoading(false);
+      return;
+    }
+    setData([...data, res.data]);
+    setIsLoading(false);
+    setIsModal(false);
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    const getAdminData = async () => {
+      const res = await userAPI.getListAdmin();
+      setData(res.data);
+    };
+    getAdminData().then(() => {
+      setIsLoading(false);
+    });
+  }, []);
 
   return (
-    <div>
+    <Spin spinning={isLoading}>
       <Button
         type="primary"
         className="text-blue-500 mb-5"
@@ -47,7 +70,7 @@ const Admin = () => {
       >
         Create
       </Button>
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} rowKey="id" />
 
       <Modal
         title={"Create Admin"}
@@ -58,9 +81,9 @@ const Admin = () => {
           <span className="text-blue-500 hover:text-white">{"Create"}</span>
         }
       >
-        <FormAdmin form={form} />
+        <FormAdmin form={form} isLoading={isLoading} />
       </Modal>
-    </div>
+    </Spin>
   );
 };
 

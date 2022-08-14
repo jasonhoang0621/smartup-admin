@@ -1,9 +1,9 @@
-import { Form, Input } from "antd";
+import { Form, Input, Spin } from "antd";
 import React from "react";
 
-const FormAdmin = ({ form }) => {
+const FormAdmin = ({ form, isLoading }) => {
   return (
-    <div>
+    <Spin spinning={isLoading}>
       <Form form={form}>
         <Form.Item
           name="email"
@@ -38,7 +38,7 @@ const FormAdmin = ({ form }) => {
           <Input.Password placeholder="Confirm Password" />
         </Form.Item>
       </Form>
-    </div>
+    </Spin>
   );
 };
 

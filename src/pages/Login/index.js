@@ -1,27 +1,39 @@
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, notification, Spin } from "antd";
 import { useForm } from "antd/lib/form/Form";
 import React from "react";
 import { useDispatch } from "react-redux";
 import userAPI from "src/api/user";
 import { login } from "src/redux/auth";
 import logo from "src/assets/images/logo.png";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [form] = useForm();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleLogin = async () => {
+    setIsLoading(true);
     const res = await userAPI.login(form.getFieldsValue());
-    if (!res) {
+    if (res.errorCode) {
+      setIsLoading(false);
+      notification.error({
+        message: "Login failed",
+        description: res.data.message || "Login failed",
+        duration: 1,
+      });
     } else {
       localStorage.setItem("token", res.data.token);
       dispatch(login(res.data));
+      navigate("/");
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div>
+      <Spin spinning={isLoading}>
         <div className="flex justify-center mb-5">
           <img src={logo} alt="logo" width="200" />
         </div>
@@ -48,7 +60,7 @@ const Login = () => {
             </Button>
           </div>
         </Form>
-      </div>
+      </Spin>
     </div>
   );
 };

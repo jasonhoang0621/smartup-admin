@@ -1,5 +1,6 @@
 import { Button, Table } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
+import userAPI from "src/api/user";
 
 const User = () => {
   const columns = [
@@ -34,28 +35,19 @@ const User = () => {
     },
   ];
 
-  const [data, setData] = React.useState([
-    {
-      key: "1",
-      name: "John Brown",
-      email: "abc@gmail.com",
-      phone: "0123456789",
-      address:
-        "No.1, ABC Road, ABC Building, ABC Ward, ABC District, ABC City, ABC Country",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      email: "jim@gmail.com",
-      phone: "0123456789",
-      address:
-        "No.1, ABC Road, ABC Building, ABC Ward, ABC District, ABC City, ABC Country",
-    },
-  ]);
+  const [data, setData] = React.useState([]);
+  useEffect(() => {
+    const getUserData = async () => {
+      const res = await userAPI.getListUser();
+      console.log(res);
+      setData(res.data);
+    };
+    getUserData();
+  }, []);
 
   return (
     <div>
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} rowKey="id" />
     </div>
   );
 };

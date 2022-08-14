@@ -9,6 +9,18 @@ const userAPI = {
     const response = await axiosClient.get("/verify");
     return response;
   },
+  async register(data) {
+    const response = await axiosClient.post("/register", data);
+    return response;
+  },
+  async getListAdmin() {
+    const response = await axiosClient.get("/admin");
+    return response;
+  },
+  async getListUser() {
+    const response = await axiosClient.get("/user");
+    return response;
+  },
 };
 
 export default userAPI;
