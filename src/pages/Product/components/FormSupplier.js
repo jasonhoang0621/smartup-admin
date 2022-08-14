@@ -1,29 +1,28 @@
-import React from "react";
-import { useForm } from "antd/es/form/Form";
-import { Form, Input } from "antd";
+import { Form, Input, Spin } from "antd";
 
-const FormSupplier = () => {
-  const [form] = useForm();
+const FormSupplier = ({ form, isLoading }) => {
   return (
-    <Form form={form}>
-      <Form.Item
-        label="Company Name"
-        name="name"
-        rules={[{ required: true, message: "Please input company name!" }]}
-      >
-        <Input placeholder="Name" />
-      </Form.Item>
-      <Form.Item
-        label="Country"
-        name="country"
-        rules={[{ required: true, message: "Please input country!" }]}
-      >
-        <Input placeholder="Country" />
-      </Form.Item>
-      <Form.Item label="Address" name="address" rules={[{ required: false }]}>
-        <Input placeholder="Address" />
-      </Form.Item>
-    </Form>
+    <Spin spinning={isLoading}>
+      <Form form={form}>
+        <Form.Item
+          label="Company Name"
+          name="companyName"
+          rules={[{ required: true, message: "Please input company name!" }]}
+        >
+          <Input placeholder="Name" />
+        </Form.Item>
+        <Form.Item
+          label="Country"
+          name="country"
+          rules={[{ required: true, message: "Please input country!" }]}
+        >
+          <Input placeholder="Country" />
+        </Form.Item>
+        <Form.Item label="Address" name="address" rules={[{ required: false }]}>
+          <Input placeholder="Address" />
+        </Form.Item>
+      </Form>
+    </Spin>
   );
 };
 

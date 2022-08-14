@@ -1,19 +1,18 @@
 import { PlusOutlined } from "@ant-design/icons";
 import {
   Button,
-  Divider,
   Form,
   Input,
   InputNumber,
   Modal,
   notification,
   Select,
-  Space,
-  Tag,
   Upload,
 } from "antd";
+import { useForm } from "antd/es/form/Form";
 import TextArea from "antd/lib/input/TextArea";
 import { useEffect, useState } from "react";
+import categoryAPI from "src/api/category";
 import supplierAPI from "src/api/supplier";
 import { getBase64 } from "src/helpers/image";
 import FormSupplier from "./FormSupplier";
@@ -22,9 +21,14 @@ const FormProduct = ({ form }) => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-  const [fileList, setFileList] = useState([]);
   const [supplierList, setSupplierList] = useState([]);
   const [isSupplierModal, setIsSupplierModal] = useState(false);
+  const [supplierForm] = useForm();
+  const [supplierLoading, setSupplierLoading] = useState(false);
+  const [categoryData, setCategoryData] = useState([]);
+  const [imageLength, setImageLength] = useState(
+    form.getFieldValue("image") ? form.getFieldValue("image").length : 0
+  );
 
   const handleCancel = () => setPreviewVisible(false);
 
@@ -40,70 +44,56 @@ const FormProduct = ({ form }) => {
     );
   };
 
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
-  const [colorTag, setColorTag] = useState("");
+  const handleChange = ({ fileList: newFileList }) => {
+    form.setFieldsValue({ image: newFileList });
+    setImageLength(newFileList.length);
+  };
 
-  const [options, setOptions] = useState([
-    { value: "white" },
-    { value: "black" },
-    { value: "gold" },
-    { value: "lime" },
-    { value: "green" },
-    { value: "cyan" },
-    { value: "blue" },
-    { value: "purple" },
-    { value: "magenta" },
-    { value: "red" },
-    { value: "volcano" },
-    { value: "orange" },
-  ]);
-
-  const addItem = (e) => {
+  const handleAddSupplier = async (e) => {
     e.preventDefault();
-    setOptions([...options, { value: colorTag }]);
-    setColorTag("");
+    setSupplierLoading(true);
+    const res = await supplierAPI.create(supplierForm.getFieldsValue());
+    console.log(res);
+    if (res.errorCode) {
+      notification.error({
+        message: "Error",
+        description: res.data.message || "Cannot create supplier",
+        duration: 1,
+      });
+      setSupplierLoading(false);
+      return;
+    }
+    setSupplierList([...supplierList, res.data]);
+    setSupplierLoading(false);
+    setIsSupplierModal(false);
+    supplierForm.resetFields();
   };
 
   useEffect(() => {
-    const getSupplierData = async () => {
+    const getData = async () => {
       const res = await supplierAPI.getListSupplier();
-      console.log(res);
       if (res.errorCode) {
         notification.error({
-          message: res.data.message || "Cannot get supplier data",
+          message: res.data || "Cannot get supplier data",
           duration: 1,
         });
         return;
       }
       setSupplierList(res.data);
-    };
-    getSupplierData();
-  }, []);
 
-  const tagRender = (props) => {
-    const { label, value, closable, onClose } = props;
-    const onPreventMouseDown = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
+      const res1 = await categoryAPI.getListCategory();
+      if (res1.errorCode) {
+        notification.error({
+          message: res1.data || "Cannot get category data",
+          duration: 1,
+        });
+        return;
+      }
+      setCategoryData(res1.data);
     };
-    return (
-      <Tag
-        color={value}
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-        style={{
-          marginRight: 3,
-          color: label === "black" ? "#fff" : "#000",
-          borderColor: "#cdcdcd",
-          display: "inline-flex",
-          alignItems: "center",
-        }}
-      >
-        <span>{label}</span>
-      </Tag>
-    );
-  };
+
+    getData();
+  }, []);
 
   return (
     <>
@@ -117,11 +107,10 @@ const FormProduct = ({ form }) => {
         >
           <Upload
             listType="picture-card"
-            fileList={fileList}
             onPreview={handlePreview}
             onChange={handleChange}
           >
-            {fileList.length >= 1 ? null : (
+            {imageLength > 0 ? null : (
               <div>
                 <PlusOutlined />
                 <div
@@ -152,6 +141,19 @@ const FormProduct = ({ form }) => {
           <TextArea />
         </Form.Item>
         <Form.Item
+          label="Category"
+          name="categoryId"
+          rules={[{ required: true, message: "Please choose category!" }]}
+        >
+          <Select placeholder="Please choose category">
+            {categoryData.map((item) => (
+              <Select.Option key={item.id} value={item.id}>
+                {item.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        {/* <Form.Item
           label="Color"
           name="color"
           rules={[{ required: true, message: "Please input product color!" }]}
@@ -180,7 +182,7 @@ const FormProduct = ({ form }) => {
               </>
             )}
           />
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item
           label="Dimension"
           name={"dimension"}
@@ -193,7 +195,7 @@ const FormProduct = ({ form }) => {
         <div className="flex items-center mb-5">
           <Form.Item
             label="Brand"
-            name="supplier"
+            name="supplierId"
             rules={[
               { required: true, message: "Please choose product brand!" },
             ]}
@@ -229,14 +231,14 @@ const FormProduct = ({ form }) => {
           name="price"
           rules={[{ required: true, message: "Please input product price!" }]}
         >
-          <Input prefix="$" />
+          <Input prefix="$" type={"number"} />
         </Form.Item>
         <Form.Item label="Sale" name="sale">
           <Input suffix="%" type={"number"} />
         </Form.Item>
         <Form.Item
           label="Quantity"
-          name="quantity"
+          name="stock"
           rules={[
             { required: true, message: "Please input product quantity!" },
           ]}
@@ -261,11 +263,15 @@ const FormProduct = ({ form }) => {
       <Modal
         visible={isSupplierModal}
         title="Add Brand"
-        onOk={() => {}}
+        onOk={handleAddSupplier}
         onCancel={() => setIsSupplierModal(false)}
-        footer={null}
+        okText={<span className="text-blue-500 hover:text-white">Add</span>}
       >
-        <FormSupplier />
+        <FormSupplier
+          form={supplierForm}
+          onSubmit={handleAddSupplier}
+          isLoading={supplierLoading}
+        />
       </Modal>
     </>
   );

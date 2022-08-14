@@ -13,6 +13,7 @@ const Product = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isModalLoading, setIsModalLoading] = React.useState(false);
   const [isDeleteModal, setIsDeleteModal] = React.useState(false);
+  const [data, setData] = React.useState([]);
 
   const handelCloseModal = () => {
     setEditItem(null);
@@ -20,32 +21,172 @@ const Product = () => {
     setIsModal(false);
   };
 
-  const handleCreateProduct = async () => {
+  const handleSetEditProduct = (record) => {
+    setIsModal(true);
+    setEditItem(record);
+    form.setFieldsValue({
+      id: record.id,
+      name: record.name,
+      price: record.price,
+      description: record.description,
+      image: [
+        {
+          uid: "-1",
+          name: "image.png",
+          status: "done",
+          url: record.image[0],
+        },
+      ],
+      categoryId: record.categoryId,
+      supplierId: record.supplierId,
+      dimension: record.dimension,
+      warranty: record.warranty,
+      sale: record.sale,
+      stock: record.stock,
+    });
+  };
+
+  const handleAddProduct = async () => {
     setIsModalLoading(true);
-    const fd = new FormData();
-    fd.append("file", form.getFieldValue("image")[0].originFileObj);
-    fd.append("upload_preset", "bspwbktq");
-    const res = await axios.post(
-      "https://api.cloudinary.com/v1_1/ducka9boe/image/upload",
-      fd
-    );
+    if (
+      form.isFieldsTouched() &&
+      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
+    ) {
+      setIsModalLoading(false);
+      return;
+    }
+    try {
+      const formData = form.getFieldsValue();
+      const fd = new FormData();
+      fd.append("file", form.getFieldValue("image")[0].originFileObj);
+      fd.append("upload_preset", "bspwbktq");
+      const response = await axios.post(
+        "https://api.cloudinary.com/v1_1/ducka9boe/image/upload",
+        fd
+      );
+      if (response?.data?.secure_url) {
+        formData.image = [response.data.secure_url];
+      } else {
+        notification.error({
+          message: "Error",
+          description: "Cannot upload image",
+          duration: 1,
+        });
+        setIsModalLoading(false);
+        return;
+      }
+      const res = await productAPI.create(formData);
+      if (res.errorCode) {
+        notification.error({
+          message: "Error",
+          description: res.data || "Cannot create product",
+          duration: 1,
+        });
+        setIsModalLoading(false);
+        return;
+      }
+      notification.success({
+        message: "Success",
+        description: "Create product successfully",
+        duration: 1,
+      });
+      setData([res.data, ...data]);
 
-    const formData = form.getFieldsValue();
-    formData.image = {
-      public_id: res.data.public_id,
-      secure_url: res.data.secure_url,
-    };
+      setIsModal(false);
+      setIsModalLoading(false);
+      form.resetFields();
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: "Cannot create product",
+        duration: 1,
+      });
+      setIsModalLoading(false);
+    }
+  };
 
-    console.log(formData);
+  const handleEditProduct = async () => {
+    setIsModalLoading(true);
+    if (
+      form.isFieldsTouched() &&
+      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
+    ) {
+      setIsModalLoading(false);
+      return;
+    }
+    try {
+      const formData = form.getFieldsValue();
+      const fd = new FormData();
+      if (form.getFieldValue("image")[0].originFileObj) {
+        fd.append("file", form.getFieldValue("image")[0].originFileObj);
+        fd.append("upload_preset", "bspwbktq");
+        const response = await axios.post(
+          "https://api.cloudinary.com/v1_1/ducka9boe/image/upload",
+          fd
+        );
+        if (response?.data?.secure_url) {
+          formData.image = [response.data.secure_url];
+        } else {
+          notification.error({
+            message: "Error",
+            description: "Cannot upload image",
+            duration: 1,
+          });
+          setIsModalLoading(false);
+          return;
+        }
+      } else {
+        formData.image = [form.getFieldValue("image")[0].url];
+      }
+      const res = await productAPI.update(editItem.id, formData);
+      if (res.errorCode) {
+        notification.error({
+          message: "Error",
+          description: res.data || "Cannot create product",
+          duration: 1,
+        });
+        setIsModalLoading(false);
+        return;
+      }
+      notification.success({
+        message: "Success",
+        description: "Create product successfully",
+        duration: 1,
+      });
 
-    setIsModal(false);
-    setIsModalLoading(false);
+      setData(data.map((item) => (item.id === res.data.id ? res.data : item)));
+      setIsModal(false);
+      setIsModalLoading(false);
+      form.resetFields();
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: "Cannot create product",
+        duration: 1,
+      });
+      setIsModalLoading(false);
+    }
   };
 
   const handleDeleteProduct = async () => {
     setIsLoading(true);
-    console.log(deleteItem);
+    const res = await productAPI.delete(deleteItem.id);
+    if (res.errorCode) {
+      notification.error({
+        message: "Error",
+        description: res.data || "Delete product error",
+        duration: 1,
+      });
+      setIsLoading(false);
+      return;
+    }
+    notification.success({
+      message: "Success",
+      description: "Delete product successfully",
+      duration: 1,
+    });
 
+    setData(data.filter((item) => item.id !== deleteItem.id));
     setIsDeleteModal(false);
     setIsLoading(false);
   };
@@ -80,6 +221,11 @@ const Product = () => {
       key: "stock",
     },
     {
+      title: "Sold",
+      dataIndex: "sold",
+      key: "sold",
+    },
+    {
       title: "Action",
       dataIndex: "action",
       key: "action",
@@ -98,10 +244,7 @@ const Product = () => {
           <Button
             type="primary"
             className="text-blue-500 ml-2"
-            onClick={() => {
-              setIsModal(true);
-              setEditItem(record);
-            }}
+            onClick={() => handleSetEditProduct(record)}
           >
             Edit
           </Button>
@@ -110,13 +253,10 @@ const Product = () => {
     },
   ];
 
-  const [data, setData] = React.useState([]);
-
   useEffect(() => {
     const getProductData = async () => {
       setIsLoading(true);
       const res = await productAPI.getListProduct();
-      console.log(res.data);
       if (res.errorCode) {
         notification.error({
           message: "Error",
@@ -137,7 +277,10 @@ const Product = () => {
         <Button
           type="primary"
           className="text-blue-500 mb-5"
-          onClick={() => setIsModal(true)}
+          onClick={() => {
+            setIsModal(true);
+            form.resetFields();
+          }}
         >
           Create
         </Button>
@@ -145,13 +288,14 @@ const Product = () => {
         <Modal
           title={editItem ? "Edit Product" : "Create Product"}
           visible={isModal}
-          onOk={handleCreateProduct}
+          onOk={editItem ? handleEditProduct : handleAddProduct}
           onCancel={handelCloseModal}
           okText={
             <span className="text-blue-500 hover:text-white">
               {editItem ? "Update" : "Create"}
             </span>
           }
+          destroyOnClose
         >
           <Spin spinning={isModalLoading}>
             <FormProduct form={form} />

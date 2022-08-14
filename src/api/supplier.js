@@ -5,6 +5,10 @@ const supplierAPI = {
     const response = await axiosClient.get("/supplier");
     return response;
   },
+  async create(data) {
+    const response = await axiosClient.post("/supplier", data);
+    return response;
+  },
 };
 
 export default supplierAPI;
