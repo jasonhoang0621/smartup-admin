@@ -1,13 +1,81 @@
-import { Button, Modal, Table } from "antd";
-import React from "react";
+import { Button, Modal, notification, Table } from "antd";
+import React, { useEffect } from "react";
+import voucherAPI from "src/api/voucher";
+import moment from "moment";
+import { useForm } from "antd/es/form/Form";
+import FormVoucher from "./components/FormVoucher";
 
 const Voucher = () => {
+  const [form] = useForm();
   const [isModal, setIsModal] = React.useState(false);
   const [editItem, setEditItem] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [data, setData] = React.useState([]);
 
   const handelCloseModal = () => {
     setEditItem(null);
     setIsModal(false);
+  };
+
+  const handleSetEditVoucher = (record) => {
+    setIsModal(true);
+    setEditItem(record);
+    form.setFieldsValue({
+      name: record.name,
+      description: record.description,
+      price: record.price,
+      stock: record.stock,
+      endDate: record?.endDate ? moment(record.endDate) : "",
+    });
+  };
+
+  const handleAddVoucher = async () => {
+    setIsLoading(true);
+    const res = await voucherAPI.create(form.getFieldsValue());
+    if (res.errorCode) {
+      notification.error({
+        message: "Error",
+        description: res.data.message || "Cannot create voucher",
+        duration: 1,
+      });
+      setIsLoading(false);
+    } else {
+      notification.success({
+        message: "Success",
+        description: "Voucher created successfully",
+        duration: 1,
+      });
+      setIsLoading(false);
+      setIsModal(false);
+      setData([res.data, ...data]);
+      form.resetFields();
+    }
+  };
+
+  const handleEditVoucher = async () => {
+    setIsLoading(true);
+    const res = await voucherAPI.update(editItem.id, form.getFieldsValue());
+    if (res.errorCode) {
+      notification.error({
+        message: "Error",
+        description: res.data.message || "Cannot update voucher",
+        duration: 1,
+      });
+      setIsLoading(false);
+      return;
+    } else {
+      notification.success({
+        message: "Success",
+        description: "Voucher updated successfully",
+        duration: 1,
+      });
+      setData(data.map((item) => (item.id === res.data.id ? res.data : item)));
+    }
+
+    setEditItem(null);
+    setIsLoading(false);
+    setIsModal(false);
+    form.resetFields();
   };
 
   const columns = [
@@ -28,13 +96,14 @@ const Voucher = () => {
     },
     {
       title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
+      dataIndex: "stock",
+      key: "stock",
     },
     {
       title: "Due",
-      dataIndex: "due",
-      key: "due",
+      dataIndex: "endDate",
+      key: "endDate",
+      render: (text) => moment(text).format("DD/MM/YYYY"),
     },
     {
       title: "Action",
@@ -44,10 +113,7 @@ const Voucher = () => {
         <Button
           type="primary"
           className="text-blue-500"
-          onClick={() => {
-            setIsModal(true);
-            setEditItem(record);
-          }}
+          onClick={() => handleSetEditVoucher(record)}
         >
           Edit
         </Button>
@@ -55,35 +121,32 @@ const Voucher = () => {
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      name: "John Brown",
-      description: "New York No. 1",
-      price: "100",
-      quantity: "1",
-      due: "10/10/2020",
-      action: "Edit",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      description: "London No. 1",
-      price: "200",
-      quantity: "2",
-      due: "10/10/2020",
-      action: "Edit",
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      description: "Sidney No. 1",
-      price: "300",
-      quantity: "3",
-      due: "10/10/2020",
-      action: "Edit",
-    },
-  ];
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await voucherAPI.getListVoucher();
+        if (res.errorCode) {
+          notification.error({
+            message: "Error",
+            description: res.data || "Something went wrong",
+          });
+          setIsLoading(false);
+          return;
+        }
+        setData(res.data);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        notification.error({
+          message: "Error",
+          description: "Something went wrong",
+        });
+      }
+    };
+
+    getData();
+  }, []);
 
   return (
     <div>
@@ -94,12 +157,17 @@ const Voucher = () => {
       >
         Create
       </Button>
-      <Table columns={columns} dataSource={data} />
+      <Table
+        columns={columns}
+        dataSource={data}
+        isLoading={isLoading}
+        rowKey="id"
+      />
 
       <Modal
         title={editItem ? "Edit Voucher" : "Create Voucher"}
         visible={isModal}
-        onOk={handelCloseModal}
+        onOk={editItem ? handleEditVoucher : handleAddVoucher}
         onCancel={handelCloseModal}
         okText={
           <span className="text-blue-500 hover:text-white">
@@ -107,7 +175,7 @@ const Voucher = () => {
           </span>
         }
       >
-        ok
+        <FormVoucher form={form} isLoading={isLoading} />
       </Modal>
     </div>
   );

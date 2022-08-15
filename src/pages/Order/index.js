@@ -1,9 +1,12 @@
-import { Modal, Table, Tag } from "antd";
-import React from "react";
+import { Modal, notification, Spin, Table, Tag } from "antd";
+import React, { useEffect } from "react";
+import orderAPI from "src/api/order";
 
 const Order = () => {
   const [isModal, setIsModal] = React.useState(false);
   const [editItem, setEditItem] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [data, setData] = React.useState([]);
 
   const handelCloseModal = () => {
     setEditItem(null);
@@ -48,38 +51,28 @@ const Order = () => {
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      email: "abc@gmail.com",
-      name: "abc",
-      phone: "0123456789",
-      address: "abc",
-      orderDate: "2020-01-01",
-      status: "Pending",
-    },
-    {
-      key: "2",
-      email: "adjcnd@gmai.com",
-      name: "abc",
-      phone: "0123456789",
-      address: "abc",
-      orderDate: "2020-01-01",
-      status: "Pending",
-    },
-    {
-      key: "3",
-      email: "cadcnakdjc@yahooh.com",
-      name: "abc",
-      phone: "0123456789",
-      address: "abc",
-      orderDate: "2020-01-01",
-      status: "Pending",
-    },
-  ];
+  useEffect(() => {
+    const getData = async () => {
+      setIsLoading(true);
+      const res = await orderAPI.getListOrder();
+      console.log(res);
+      if (res.errorCode) {
+        notification.error({
+          message: "Error",
+          description: res.data || "Something went wrong",
+          duration: 2,
+        });
+        setIsLoading(false);
+        return;
+      }
+      setData(res.data);
+      setIsLoading(false);
+    };
+    getData();
+  }, []);
 
   return (
-    <div>
+    <Spin spinning={isLoading}>
       <Table
         columns={columns}
         dataSource={data}
@@ -104,7 +97,7 @@ const Order = () => {
           </span>
         }
       ></Modal>
-    </div>
+    </Spin>
   );
 };
 

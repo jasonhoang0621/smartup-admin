@@ -9,7 +9,6 @@ const Admin = () => {
   const [form] = useForm();
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
-  console.log(isLoading);
 
   const columns = [
     {
@@ -56,10 +55,9 @@ const Admin = () => {
     const getAdminData = async () => {
       const res = await userAPI.getListAdmin();
       setData(res.data);
-    };
-    getAdminData().then(() => {
       setIsLoading(false);
-    });
+    };
+    getAdminData();
   }, []);
 
   return (
