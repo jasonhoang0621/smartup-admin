@@ -1,4 +1,4 @@
-import { Button, Modal, notification, Table } from "antd";
+import { Button, Modal, notification, Spin, Table } from "antd";
 import React, { useEffect } from "react";
 import voucherAPI from "src/api/voucher";
 import moment from "moment";
@@ -149,7 +149,7 @@ const Voucher = () => {
   }, []);
 
   return (
-    <div>
+    <Spin spinning={isLoading}>
       <Button
         type="primary"
         className="text-blue-500 mb-5"
@@ -177,7 +177,7 @@ const Voucher = () => {
       >
         <FormVoucher form={form} isLoading={isLoading} />
       </Modal>
-    </div>
+    </Spin>
   );
 };
 

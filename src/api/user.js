@@ -21,6 +21,14 @@ const userAPI = {
     const response = await axiosClient.get("/user");
     return response;
   },
+  async blockUser(email) {
+    const response = await axiosClient.post(`/deleteAccount`, { email });
+    return response;
+  },
+  async unblockUser(id) {
+    const response = await axiosClient.post(`/deleteAccount`);
+    return response;
+  },
 };
 
 export default userAPI;

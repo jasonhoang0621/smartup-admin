@@ -1,9 +1,26 @@
 import React from "react";
 
-type Props = {};
-
-const LoadingScreen = (props: Props) => {
-  return <div>LoadingScreen</div>;
+const LoadingScreen = () => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignContent: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          fontSize: 30,
+        }}
+      >
+        Loading...
+      </div>
+    </div>
+  );
 };
 
 export default LoadingScreen;

@@ -30,8 +30,8 @@ const routers = [
     icon: <InboxOutlined />,
   },
   {
-    name: "oder",
-    path: "/oder",
+    name: "order",
+    path: "/order",
     element: Order,
     icon: <ShoppingCartOutlined />,
   },

@@ -41,22 +41,24 @@ const Order = () => {
       key: "payment",
       render: (text, record) => {
         return (
-          <Tag
-            color={
-              record.payment === "momo"
-                ? "pink"
+          <div className="text-center">
+            <Tag
+              color={
+                record.payment === "momo"
+                  ? "pink"
+                  : record.payment === "cash"
+                  ? "orange"
+                  : "volcano"
+              }
+              className="bg-red"
+            >
+              {record.payment === "momo"
+                ? "Momo"
                 : record.payment === "cash"
-                ? "orange"
-                : "volcano"
-            }
-            className="bg-red"
-          >
-            {record.payment === "momo"
-              ? "Momo"
-              : record.payment === "cash"
-              ? "Cash"
-              : "VNPay"}
-          </Tag>
+                ? "Cash"
+                : "VNPay"}
+            </Tag>
+          </div>
         );
       },
     },
@@ -71,9 +73,11 @@ const Order = () => {
       dataIndex: "status",
       key: "status",
       render: (text, record) => (
-        <Tag color={record.status === "Pending" ? "blue" : "green"}>
-          {record.status}
-        </Tag>
+        <div className="text-center">
+          <Tag color={record.status === "Pending" ? "blue" : "green"}>
+            {record.status}
+          </Tag>
+        </div>
       ),
     },
   ];
