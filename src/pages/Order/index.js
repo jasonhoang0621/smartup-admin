@@ -1,4 +1,5 @@
 import { Modal, notification, Spin, Table, Tag } from "antd";
+import moment from "moment";
 import React, { useEffect } from "react";
 import orderAPI from "src/api/order";
 
@@ -35,16 +36,42 @@ const Order = () => {
       key: "address",
     },
     {
+      title: "Payment",
+      dataIndex: "payment",
+      key: "payment",
+      render: (text, record) => {
+        return (
+          <Tag
+            color={
+              record.payment === "momo"
+                ? "pink"
+                : record.payment === "cash"
+                ? "orange"
+                : "volcano"
+            }
+            className="bg-red"
+          >
+            {record.payment === "momo"
+              ? "Momo"
+              : record.payment === "cash"
+              ? "Cash"
+              : "VNPay"}
+          </Tag>
+        );
+      },
+    },
+    {
       title: "Order date",
-      dataIndex: "orderDate",
-      key: "orderDate",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (text) => moment(text).format("DD/MM/YYYY"),
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
       render: (text, record) => (
-        <Tag color={record.status === "pending" ? "blue" : "green"}>
+        <Tag color={record.status === "Pending" ? "blue" : "green"}>
           {record.status}
         </Tag>
       ),
@@ -84,6 +111,7 @@ const Order = () => {
             },
           };
         }}
+        rowKey="id"
       />
 
       <Modal

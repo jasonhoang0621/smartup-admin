@@ -53,7 +53,6 @@ const FormProduct = ({ form }) => {
     e.preventDefault();
     setSupplierLoading(true);
     const res = await supplierAPI.create(supplierForm.getFieldsValue());
-    console.log(res);
     if (res.errorCode) {
       notification.error({
         message: "Error",
