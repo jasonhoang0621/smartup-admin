@@ -31,51 +31,87 @@ const Voucher = () => {
 
   const handleAddVoucher = async () => {
     setIsLoading(true);
-    const res = await voucherAPI.create(form.getFieldsValue());
-    if (res.errorCode) {
-      notification.error({
-        message: "Error",
-        description: res.data.message || "Cannot create voucher",
-        duration: 1,
-      });
+    if (
+      form.isFieldsTouched() &&
+      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
+    ) {
       setIsLoading(false);
-    } else {
-      notification.success({
-        message: "Success",
-        description: "Voucher created successfully",
-        duration: 1,
-      });
-      setIsLoading(false);
-      setIsModal(false);
-      setData([res.data, ...data]);
-      form.resetFields();
+      return;
+    }
+    let isFail = false;
+    Object.keys(form.getFieldsValue()).forEach((item) => {
+      if (!form.getFieldsValue()[item]) {
+        console.log(form.getFieldsValue()[item]);
+        setIsLoading(false);
+        isFail = true;
+        return;
+      }
+    });
+    if (!isFail) {
+      const res = await voucherAPI.create(form.getFieldsValue());
+      if (res.errorCode) {
+        notification.error({
+          message: "Error",
+          description: res.data.message || "Cannot create voucher",
+          duration: 1,
+        });
+        setIsLoading(false);
+      } else {
+        notification.success({
+          message: "Success",
+          description: "Voucher created successfully",
+          duration: 1,
+        });
+        setIsLoading(false);
+        setIsModal(false);
+        setData([res.data, ...data]);
+        form.resetFields();
+      }
     }
   };
 
   const handleEditVoucher = async () => {
     setIsLoading(true);
-    const res = await voucherAPI.update(editItem.id, form.getFieldsValue());
-    if (res.errorCode) {
-      notification.error({
-        message: "Error",
-        description: res.data.message || "Cannot update voucher",
-        duration: 1,
-      });
+    if (
+      form.isFieldsTouched() &&
+      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
+    ) {
       setIsLoading(false);
       return;
-    } else {
-      notification.success({
-        message: "Success",
-        description: "Voucher updated successfully",
-        duration: 1,
-      });
-      setData(data.map((item) => (item.id === res.data.id ? res.data : item)));
     }
+    let isFail = false;
+    Object.keys(form.getFieldsValue()).forEach((item) => {
+      if (!form.getFieldsValue()[item]) {
+        setIsLoading(false);
+        isFail = true;
+      }
+    });
+    if (!isFail) {
+      const res = await voucherAPI.update(editItem.id, form.getFieldsValue());
+      if (res.errorCode) {
+        notification.error({
+          message: "Error",
+          description: res.data.message || "Cannot update voucher",
+          duration: 1,
+        });
+        setIsLoading(false);
+        return;
+      } else {
+        notification.success({
+          message: "Success",
+          description: "Voucher updated successfully",
+          duration: 1,
+        });
+        setData(
+          data.map((item) => (item.id === res.data.id ? res.data : item))
+        );
+      }
 
-    setEditItem(null);
-    setIsLoading(false);
-    setIsModal(false);
-    form.resetFields();
+      setEditItem(null);
+      setIsLoading(false);
+      setIsModal(false);
+      form.resetFields();
+    }
   };
 
   const columns = [

@@ -69,7 +69,6 @@ const User = () => {
     try {
       if (blockUser) {
         const res = await userAPI.blockUser(blockUser.id);
-        console.log(res);
         if (res?.errorCode) {
           notification.error({
             message: "Error",

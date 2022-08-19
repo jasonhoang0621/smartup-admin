@@ -55,69 +55,17 @@ const Product = () => {
       setIsModalLoading(false);
       return;
     }
-    try {
-      const formData = form.getFieldsValue();
-      const fd = new FormData();
-      fd.append("file", form.getFieldValue("image")[0].originFileObj);
-      fd.append("upload_preset", "bspwbktq");
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/ducka9boe/image/upload",
-        fd
-      );
-      if (response?.data?.secure_url) {
-        formData.image = [response.data.secure_url];
-      } else {
-        notification.error({
-          message: "Error",
-          description: "Cannot upload image",
-          duration: 1,
-        });
+    let isFail = false;
+    Object.keys(form.getFieldsValue()).forEach((item) => {
+      if (!form.getFieldsValue()[item]) {
         setIsModalLoading(false);
-        return;
+        isFail = true;
       }
-      const res = await productAPI.create(formData);
-      if (res.errorCode) {
-        notification.error({
-          message: "Error",
-          description: res.data || "Cannot create product",
-          duration: 1,
-        });
-        setIsModalLoading(false);
-        return;
-      }
-      notification.success({
-        message: "Success",
-        description: "Create product successfully",
-        duration: 1,
-      });
-      setData([res.data, ...data]);
-
-      setIsModal(false);
-      setIsModalLoading(false);
-      form.resetFields();
-    } catch (error) {
-      notification.error({
-        message: "Error",
-        description: "Cannot create product",
-        duration: 1,
-      });
-      setIsModalLoading(false);
-    }
-  };
-
-  const handleEditProduct = async () => {
-    setIsModalLoading(true);
-    if (
-      form.isFieldsTouched() &&
-      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
-    ) {
-      setIsModalLoading(false);
-      return;
-    }
-    try {
-      const formData = form.getFieldsValue();
-      const fd = new FormData();
-      if (form.getFieldValue("image")[0].originFileObj) {
+    });
+    if (!isFail) {
+      try {
+        const formData = form.getFieldsValue();
+        const fd = new FormData();
         fd.append("file", form.getFieldValue("image")[0].originFileObj);
         fd.append("upload_preset", "bspwbktq");
         const response = await axios.post(
@@ -135,36 +83,108 @@ const Product = () => {
           setIsModalLoading(false);
           return;
         }
-      } else {
-        formData.image = [form.getFieldValue("image")[0].url];
-      }
-      const res = await productAPI.update(editItem.id, formData);
-      if (res.errorCode) {
+        const res = await productAPI.create(formData);
+        if (res.errorCode) {
+          notification.error({
+            message: "Error",
+            description: res.data || "Cannot create product",
+            duration: 1,
+          });
+          setIsModalLoading(false);
+          return;
+        }
+        notification.success({
+          message: "Success",
+          description: "Create product successfully",
+          duration: 1,
+        });
+        setData([res.data, ...data]);
+
+        setIsModal(false);
+        setIsModalLoading(false);
+        form.resetFields();
+      } catch (error) {
         notification.error({
           message: "Error",
-          description: res.data || "Cannot create product",
+          description: "Cannot create product",
           duration: 1,
         });
         setIsModalLoading(false);
-        return;
       }
-      notification.success({
-        message: "Success",
-        description: "Create product successfully",
-        duration: 1,
-      });
+    }
+  };
 
-      setData(data.map((item) => (item.id === res.data.id ? res.data : item)));
-      setIsModal(false);
+  const handleEditProduct = async () => {
+    setIsModalLoading(true);
+    if (
+      form.isFieldsTouched() &&
+      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
+    ) {
       setIsModalLoading(false);
-      form.resetFields();
-    } catch (error) {
-      notification.error({
-        message: "Error",
-        description: "Cannot create product",
-        duration: 1,
-      });
-      setIsModalLoading(false);
+      return;
+    }
+    let isFail = false;
+    Object.keys(form.getFieldsValue()).forEach((item) => {
+      if (item.length === 0) {
+        setIsModalLoading(false);
+        isFail = true;
+      }
+    });
+    if (!isFail) {
+      try {
+        const formData = form.getFieldsValue();
+        const fd = new FormData();
+        if (form.getFieldValue("image")[0].originFileObj) {
+          fd.append("file", form.getFieldValue("image")[0].originFileObj);
+          fd.append("upload_preset", "bspwbktq");
+          const response = await axios.post(
+            "https://api.cloudinary.com/v1_1/ducka9boe/image/upload",
+            fd
+          );
+          if (response?.data?.secure_url) {
+            formData.image = [response.data.secure_url];
+          } else {
+            notification.error({
+              message: "Error",
+              description: "Cannot upload image",
+              duration: 1,
+            });
+            setIsModalLoading(false);
+            return;
+          }
+        } else {
+          formData.image = [form.getFieldValue("image")[0].url];
+        }
+        const res = await productAPI.update(editItem.id, formData);
+        if (res.errorCode) {
+          notification.error({
+            message: "Error",
+            description: res.data || "Cannot create product",
+            duration: 1,
+          });
+          setIsModalLoading(false);
+          return;
+        }
+        notification.success({
+          message: "Success",
+          description: "Create product successfully",
+          duration: 1,
+        });
+
+        setData(
+          data.map((item) => (item.id === res.data.id ? res.data : item))
+        );
+        setIsModal(false);
+        setIsModalLoading(false);
+        form.resetFields();
+      } catch (error) {
+        notification.error({
+          message: "Error",
+          description: "Cannot create product",
+          duration: 1,
+        });
+        setIsModalLoading(false);
+      }
     }
   };
 

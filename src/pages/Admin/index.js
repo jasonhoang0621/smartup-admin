@@ -25,29 +25,46 @@ const Admin = () => {
 
   const handleCreateAdmin = async () => {
     setIsLoading(true);
-    const dataForm = form.getFieldsValue();
-    if (dataForm.password !== dataForm.confirmPassword) {
-      notification.error({
-        message: "Password not match",
-        duration: 1,
-      });
+    if (
+      form.isFieldsTouched() &&
+      form.getFieldsError().filter((item) => item.errors.length > 0).length > 0
+    ) {
       setIsLoading(false);
       return;
     }
-    dataForm.role = "admin";
-    const res = await userAPI.register(dataForm);
-    if (res.errorCode) {
-      notification.error({
-        message: res.data || "Something went wrong",
-        duration: 1,
-      });
-      setIsLoading(false);
-      return;
+    let isFail = false;
+    Object.keys(form.getFieldsValue()).forEach((item) => {
+      if (!form.getFieldsValue()[item]) {
+        setIsLoading(false);
+        isFail = true;
+      }
+    });
+    if (!isFail) {
+      const dataForm = form.getFieldsValue();
+      if (dataForm.password !== dataForm.confirmPassword) {
+        notification.error({
+          message: "Password not match",
+          duration: 1,
+        });
+        setIsLoading(false);
+        return;
+      }
+      dataForm.role = "admin";
+      const res = await userAPI.register(dataForm);
+      if (res?.errorCode) {
+        notification.error({
+          message: res.data || "Something went wrong",
+          duration: 1,
+        });
+        setIsLoading(false);
+        return;
+      } else {
+        setData([...data, res.data]);
+        form.resetFields();
+        setIsLoading(false);
+        setIsModal(false);
+      }
     }
-    setData([...data, res.data]);
-    form.resetFields();
-    setIsLoading(false);
-    setIsModal(false);
   };
 
   useEffect(() => {

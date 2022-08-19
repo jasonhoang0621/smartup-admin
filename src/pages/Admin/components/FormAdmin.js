@@ -26,7 +26,8 @@ const FormAdmin = ({ form, isLoading }) => {
         <Form.Item
           name="password"
           rules={[
-            { required: true, message: "Please input your password!", min: 6 },
+            { required: true, message: "Please input your password!" },
+            { min: 6, message: "Password must be at least 6 characters!" },
           ]}
         >
           <Input.Password placeholder="Password" />
