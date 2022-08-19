@@ -38,7 +38,7 @@ const Admin = () => {
     const res = await userAPI.register(dataForm);
     if (res.errorCode) {
       notification.error({
-        message: res.message || "Something went wrong",
+        message: res.data || "Something went wrong",
         duration: 1,
       });
       setIsLoading(false);

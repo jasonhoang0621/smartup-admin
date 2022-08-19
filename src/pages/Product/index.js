@@ -260,7 +260,7 @@ const Product = () => {
       if (res.errorCode) {
         notification.error({
           message: "Error",
-          description: res.message,
+          description: res.data,
         });
         setIsLoading(false);
         return;

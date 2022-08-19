@@ -21,12 +21,12 @@ const userAPI = {
     const response = await axiosClient.get("/user");
     return response;
   },
-  async blockUser(email) {
-    const response = await axiosClient.post(`/deleteAccount`, { email });
+  async blockUser(id) {
+    const response = await axiosClient.patch(`/deleteAccount/${id}`);
     return response;
   },
   async unblockUser(id) {
-    const response = await axiosClient.post(`/deleteAccount`);
+    const response = await axiosClient.patch(`/unban/${id}`);
     return response;
   },
 };

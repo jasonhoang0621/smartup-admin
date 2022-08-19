@@ -68,16 +68,15 @@ const User = () => {
     setIsLoading(true);
     try {
       if (blockUser) {
-        const res = await userAPI.blockUser(blockUser.email);
-        if (res.errorCode) {
+        const res = await userAPI.blockUser(blockUser.id);
+        console.log(res);
+        if (res?.errorCode) {
           notification.error({
             message: "Error",
             description: res.data || "Something went wrong",
             duration: 2,
           });
-          setIsModalVisible(false);
           setIsLoading(false);
-          setBlockUser(null);
           return;
         }
         notification.success({
@@ -94,15 +93,13 @@ const User = () => {
         setBlockUser(null);
       } else {
         const res = await userAPI.unblockUser(unblockUser.id);
-        if (res.errorCode) {
+        if (res?.errorCode) {
           notification.error({
             message: "Error",
             description: res.data || "Something went wrong",
             duration: 2,
           });
-          setIsModalVisible(false);
           setIsLoading(false);
-          setUnblockUser(null);
           return;
         }
         notification.success({
@@ -112,7 +109,7 @@ const User = () => {
         });
         setData(
           data.map((item) =>
-            item.id === blockUser.id ? { ...item, deletedAt: false } : item
+            item.id === unblockUser.id ? { ...item, deletedAt: false } : item
           )
         );
         setIsModalVisible(false);
