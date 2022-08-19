@@ -2,6 +2,7 @@ import { Modal, notification, Spin, Table, Tag } from "antd";
 import moment from "moment";
 import React, { useEffect } from "react";
 import orderAPI from "src/api/order";
+import DetailOrder from "./components/DetailOrder";
 
 const Order = () => {
   const [isModal, setIsModal] = React.useState(false);
@@ -12,6 +13,7 @@ const Order = () => {
   const handelCloseModal = () => {
     setEditItem(null);
     setIsModal(false);
+    setEditItem(null);
   };
 
   const columns = [
@@ -123,12 +125,12 @@ const Order = () => {
         visible={isModal}
         onOk={handelCloseModal}
         onCancel={handelCloseModal}
-        okText={
-          <span className="text-blue-500 hover:text-white">
-            {editItem ? "Update" : "Create"}
-          </span>
-        }
-      ></Modal>
+        okText={<span className="text-blue-500 hover:text-white">Update</span>}
+        width={"80%"}
+        destroyOnClose
+      >
+        <DetailOrder data={editItem?.product || []} />
+      </Modal>
     </Spin>
   );
 };

@@ -11,3 +11,9 @@
 .ant-table .ant-table-content .ant-table-thead > tr > .ant-table-cell {
   text-align: center;
 }
+
+.ant-steps-icon .anticon.anticon-check.ant-steps-finish-icon,
+.ant-steps-icon .anticon.anticon-close.ant-steps-error-icon {
+  margin-top: 8px;
+  display: block;
+}
