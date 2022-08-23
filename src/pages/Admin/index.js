@@ -76,8 +76,7 @@ const Admin = () => {
     const getAdminData = async () => {
       setIsLoading(true);
       const res = await userAPI.getListAdmin();
-      console.log(res);
-      if (res?.errCode) {
+      if (res?.errorCode) {
         setIsLoading(false);
       } else {
         setData(res.data);

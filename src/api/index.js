@@ -3,7 +3,8 @@ import queryString from "query-string";
 import { deleteCookie, getCookie } from "src/helpers/cookie";
 
 const apiConfig = {
-  baseURL: "https://ec01-03-server.herokuapp.com/",
+  // baseURL: "https://ec01-03-server.herokuapp.com/",
+  baseURL: "http://localhost:3001/",
   token: localStorage.getItem("token") || "",
 };
 
