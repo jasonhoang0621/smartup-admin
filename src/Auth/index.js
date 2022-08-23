@@ -18,8 +18,13 @@ export const CheckAuth = ({ children }) => {
       if (!user && !check) {
         if (token) {
           const res = await userAPI.verify();
-          setCheck(true);
-          dispatch(login(res.data));
+          if (res.errorCode) {
+            setCheck(false);
+            navigate("/login");
+          } else {
+            setCheck(true);
+            dispatch(login(res.data));
+          }
         } else {
           setCheck(true);
         }

@@ -1,10 +1,12 @@
 import { Button, Modal, notification, Spin, Table } from "antd";
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import userAPI from "src/api/user";
 
 const User = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [data, setData] = React.useState([]);
+  const user = useSelector((state) => state.auth);
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [blockUser, setBlockUser] = React.useState(null);
@@ -129,12 +131,16 @@ const User = () => {
     const getUserData = async () => {
       setIsLoading(true);
       const res = await userAPI.getListUser();
-      setData(res.data);
+      if (res.errorCode) {
+        setData([]);
+      } else {
+        setData(res.data ?? []);
+      }
       setIsLoading(false);
     };
     getUserData();
-  }, []);
-
+  }, [user]);
+  console.log(data)
   return (
     <Spin spinning={isLoading}>
       <Table columns={columns} dataSource={data} rowKey="id" />
