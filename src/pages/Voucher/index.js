@@ -44,6 +44,11 @@ const Voucher = () => {
         console.log(form.getFieldsValue()[item]);
         setIsLoading(false);
         isFail = true;
+        notification.error({
+          message: "Error",
+          description: "Please fill all the fields",
+          duration: 1,
+        });
         return;
       }
     });

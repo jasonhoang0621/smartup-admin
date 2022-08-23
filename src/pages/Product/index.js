@@ -60,6 +60,11 @@ const Product = () => {
       if (!form.getFieldsValue()[item]) {
         setIsModalLoading(false);
         isFail = true;
+        notification.error({
+          message: "Error",
+          description: "Please fill all the fields",
+          duration: 1,
+        });
       }
     });
     if (!isFail) {
@@ -128,6 +133,11 @@ const Product = () => {
       if (item.length === 0) {
         setIsModalLoading(false);
         isFail = true;
+        notification.error({
+          message: "Error",
+          description: "Please fill all the fields",
+          duration: 1,
+        });
       }
     });
     if (!isFail) {

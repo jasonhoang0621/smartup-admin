@@ -31,7 +31,7 @@ export const CheckAuth = ({ children }) => {
       }
     };
     verifyAccount();
-  }, [check, user, dispatch]);
+  }, [check, user, dispatch, navigate]);
 
   if (!user && !check) {
     return <LoadingScreen />;

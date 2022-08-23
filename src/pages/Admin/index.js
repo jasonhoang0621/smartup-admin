@@ -37,6 +37,11 @@ const Admin = () => {
       if (!form.getFieldsValue()[item]) {
         setIsLoading(false);
         isFail = true;
+        notification.error({
+          message: "Error",
+          description: "Please fill all the fields",
+          duration: 1,
+        });
       }
     });
     if (!isFail) {
