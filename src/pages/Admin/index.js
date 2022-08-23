@@ -68,11 +68,16 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
     const getAdminData = async () => {
+      setIsLoading(true);
       const res = await userAPI.getListAdmin();
-      setData(res.data);
-      setIsLoading(false);
+      console.log(res);
+      if (res?.errCode) {
+        setIsLoading(false);
+      } else {
+        setData(res.data);
+        setIsLoading(false);
+      }
     };
     getAdminData();
   }, []);
