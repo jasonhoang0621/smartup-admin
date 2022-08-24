@@ -1,5 +1,5 @@
 import { Modal, Steps, Table } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import orderAPI from "src/api/order";
 
 const { Step } = Steps;
@@ -34,7 +34,13 @@ const DetailOrder = (props) => {
       setCurrent(value);
     }
   };
-
+  useEffect(()=>{
+    steps.map((item,index) => {
+      if (item.title === order.status) {
+        setCurrent(index)
+      }
+    })
+  },[])
   const columns = [
     {
       title: "",
