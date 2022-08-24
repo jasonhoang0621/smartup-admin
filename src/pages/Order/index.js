@@ -74,13 +74,20 @@ const Order = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text, record) => (
-        <div className="text-center">
-          <Tag color={record.status === "Pending" ? "blue" : "green"}>
-            {record.status}
-          </Tag>
-        </div>
-      ),
+      render: (text, record) => {
+        switch (record.status) {
+          case "Pending":
+            return <Tag color="blue">Pending</Tag>;
+          case "Shipping":
+            return <Tag color="pink">Shipping</Tag>;
+          case "Done":
+            return <Tag color="green">Delivered</Tag>;
+          case "Cancel":
+            return <Tag color="red">Cancelled</Tag>;
+          default:
+            return <Tag color="blue">Pending</Tag>;
+        }
+      },
     },
   ];
 
