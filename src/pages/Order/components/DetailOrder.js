@@ -1,5 +1,6 @@
 import { Modal, Steps, Table } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import orderAPI from "src/api/order";
 
 const { Step } = Steps;
 const steps = [
@@ -18,18 +19,28 @@ const steps = [
 ];
 
 const DetailOrder = (props) => {
-  const { data } = props;
+  const { data, order } = props;
   const [current, setCurrent] = useState(1);
   const [isConfirmModal, setIsConfirmModal] = useState(false);
 
-  const onChange = (value) => {
+  const onChange = async (value) => {
     if (value === 0) {
       setIsConfirmModal(true);
       return;
+    } else {
+      await orderAPI.update(order.id, {
+        status: steps[value].title,
+      });
+      setCurrent(value);
     }
-    setCurrent(value);
   };
-
+  useEffect(()=>{
+    steps.map((item,index) => {
+      if (item.title === order.status) {
+        setCurrent(index)
+      }
+    })
+  },[])
   const columns = [
     {
       title: "",
@@ -105,13 +116,14 @@ const DetailOrder = (props) => {
       <Modal
         title="Confirm"
         visible={isConfirmModal}
-        onOk={() => {
+        onOk={async () => {
+          await orderAPI.update(order.id, { status: steps[0].title });
           setIsConfirmModal(false);
           setCurrent(0);
         }}
         onCancel={() => setIsConfirmModal(false)}
         okButtonProps={{ type: "danger" }}
-        okText={<span className="text-red-500 hover:text-white">Cancel</span>}
+        okText={<span className="text-red-500 hover:text-white">Confirm</span>}
       >
         <p>Are you sure to cancel this order?</p>
       </Modal>
