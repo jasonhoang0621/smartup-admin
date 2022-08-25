@@ -55,6 +55,8 @@ const Voucher = () => {
     if (!isFail) {
       let data = {
         ...form.getFieldsValue(),
+        endDate: moment(form.getFieldValue("endDate")).format(
+          "DD/MM/YYYY")
       };
       if (
         form.getFieldValue("endDate") === "" ||
@@ -66,7 +68,7 @@ const Voucher = () => {
           "DD/MM/YYYY"
         );
       }
-      const res = await voucherAPI.create(form.getFieldsValue());
+      const res = await voucherAPI.create(data);
       if (res.errorCode) {
         notification.error({
           message: "Error",
@@ -80,11 +82,10 @@ const Voucher = () => {
           description: "Voucher created successfully",
           duration: 1,
         });
+        setReset(reset + 1);
         setIsLoading(false);
         setIsModal(false);
-        setData([res.data, ...data]);
         form.resetFields();
-        setReset(reset + 1);
       }
     }
   };
