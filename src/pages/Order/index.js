@@ -9,13 +9,12 @@ const Order = () => {
   const [editItem, setEditItem] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
-  const[refresh, setRefresh] = React.useState(0)
+  const [refresh, setRefresh] = React.useState(0);
   const handelCloseModal = () => {
     setEditItem(null);
     setIsModal(false);
     setEditItem(null);
-    setRefresh(refresh+1)
-
+    setRefresh(refresh + 1);
   };
 
   const columns = [
@@ -76,13 +75,20 @@ const Order = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (text, record) => (
-        <div className="text-center">
-          <Tag color={record.status === "Pending" ? "blue" : record.status === "Cancel" ? "red" : "green"}>
-            {record.status}
-          </Tag>
-        </div>
-      ),
+      render: (text, record) => {
+        switch (record.status) {
+          case "Pending":
+            return <Tag color="blue">Pending</Tag>;
+          case "Shipping":
+            return <Tag color="pink">Shipping</Tag>;
+          case "Done":
+            return <Tag color="green">Delivered</Tag>;
+          case "Cancel":
+            return <Tag color="red">Cancelled</Tag>;
+          default:
+            return <Tag color="blue">Pending</Tag>;
+        }
+      },
     },
   ];
 
@@ -130,7 +136,7 @@ const Order = () => {
         width={"80%"}
         destroyOnClose
       >
-        <DetailOrder data={editItem?.product || []} order={editItem}/>
+        <DetailOrder data={editItem?.product || []} order={editItem} />
       </Modal>
     </Spin>
   );
