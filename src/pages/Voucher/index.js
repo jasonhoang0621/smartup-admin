@@ -11,7 +11,7 @@ const Voucher = () => {
   const [editItem, setEditItem] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [data, setData] = React.useState([]);
-
+  const [reset, setReset] = React.useState(0);
   const handelCloseModal = () => {
     setEditItem(null);
     setIsModal(false);
@@ -39,9 +39,9 @@ const Voucher = () => {
       return;
     }
     let isFail = false;
+    console.log(form.getFieldsValue());
     Object.keys(form.getFieldsValue()).forEach((item) => {
-      if (!form.getFieldsValue()[item]) {
-        console.log(form.getFieldsValue()[item]);
+      if (!form.getFieldsValue()[item] && item !== "endDate") {
         setIsLoading(false);
         isFail = true;
         notification.error({
@@ -53,6 +53,19 @@ const Voucher = () => {
       }
     });
     if (!isFail) {
+      let data = {
+        ...form.getFieldsValue(),
+      };
+      if (
+        form.getFieldValue("endDate") === "" ||
+        data.endDate === "Invalid date"
+      ) {
+        delete data.endDate;
+      } else {
+        data.endDate = moment(form.getFieldValue("endDate")).format(
+          "DD/MM/YYYY"
+        );
+      }
       const res = await voucherAPI.create(form.getFieldsValue());
       if (res.errorCode) {
         notification.error({
@@ -71,6 +84,7 @@ const Voucher = () => {
         setIsModal(false);
         setData([res.data, ...data]);
         form.resetFields();
+        setReset(reset + 1);
       }
     }
   };
@@ -86,13 +100,28 @@ const Voucher = () => {
     }
     let isFail = false;
     Object.keys(form.getFieldsValue()).forEach((item) => {
-      if (!form.getFieldsValue()[item]) {
+      if (!form.getFieldsValue()[item] && item !== "endDate") {
         setIsLoading(false);
         isFail = true;
       }
     });
     if (!isFail) {
-      const res = await voucherAPI.update(editItem.id, form.getFieldsValue());
+      let data = {
+        ...form.getFieldsValue(),
+        endDate: moment(form.getFieldValue("endDate")).format(
+          "DD/MM/YYYY")
+      };
+      if (
+        form.getFieldValue("endDate") === "" ||
+        data.endDate === "Invalid date"
+      ) {
+        delete data.endDate;
+      } else {
+        data.endDate = moment(form.getFieldValue("endDate")).format(
+          "DD/MM/YYYY"
+        );
+      }
+      const res = await voucherAPI.update(editItem.id, data);
       if (res.errorCode) {
         notification.error({
           message: "Error",
@@ -107,9 +136,7 @@ const Voucher = () => {
           description: "Voucher updated successfully",
           duration: 1,
         });
-        setData(
-          data.map((item) => (item.id === res.data.id ? res.data : item))
-        );
+        setReset(reset + 1);
       }
 
       setEditItem(null);
@@ -144,7 +171,7 @@ const Voucher = () => {
       title: "Due",
       dataIndex: "endDate",
       key: "endDate",
-      render: (text) => moment(text).format("DD/MM/YYYY"),
+      render: (text) => (text ? moment(text).format("DD/MM/YYYY") : null),
     },
     {
       title: "Action",
@@ -187,7 +214,7 @@ const Voucher = () => {
     };
 
     getData();
-  }, []);
+  }, [reset]);
 
   return (
     <Spin spinning={isLoading}>

@@ -3,9 +3,13 @@ import TextArea from "antd/lib/input/TextArea";
 import React from "react";
 
 const FormVoucher = ({ form, isLoading }) => {
+  const onFinish = (values) => {
+    console.log('test') 
+    console.log(form.getFieldsValue()) 
+  };
   return (
     <Spin spinning={isLoading}>
-      <Form form={form}>
+      <Form form={form} onFinish={onFinish}>
         <Form.Item name="name" label="Name" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
@@ -22,7 +26,7 @@ const FormVoucher = ({ form, isLoading }) => {
         <Form.Item name="stock" label="Quantity" rules={[{ required: true }]}>
           <InputNumber />
         </Form.Item>
-        <Form.Item name="endDate" label="Due" rules={[{ required: true }]}>
+        <Form.Item name="endDate" label="Due">
           <DatePicker format={"DD/MM/YYYY"} />
         </Form.Item>
       </Form>
